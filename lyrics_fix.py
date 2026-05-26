@@ -4,9 +4,11 @@ import re
 
 
 class LyricsLine:
-    def __init__(self, time: int, content: str) -> None:
+    def __init__(self, time: int, content: str, parse_content: bool = False) -> None:
         self.timestamp: int = time
         self.content: str = content
+        if parse_content:
+            self.fix_content()
 
     @override
     def __str__(self) -> str:
@@ -14,6 +16,20 @@ class LyricsLine:
 
     def get_time(self) -> str:
         return stamp_to_time(self.timestamp)
+
+    def fix_content(self) -> None:
+        erase = ["\\n", "\\t", "\\r", "\\h"]
+        replace = [["\\\\", "\\"], ['\\"', '"'], ["\\'", "'"]]
+        for symbol in erase:
+            self.content = self.content.replace(symbol, "")
+        for pair in replace:
+            self.content = self.content.replace(pair[0], pair[1])
+        lb_position = self.content.find("<")
+        rb_position = self.content.find(">")
+        while (lb_position != -1) and (rb_position != -1):
+            self.content = self.content[:lb_position] + self.content[rb_position + 1 :]
+            lb_position = self.content.find("<")
+            rb_position = self.content.find(">")
 
 
 class LyricsData:
@@ -37,17 +53,88 @@ class LyricsData:
             line_str += str(line)
         return f"Name: {self.name}\nLang: {self.lang}\nExt: {self.ext}\nMetadata: {self.metadata}\nLines:\n{line_str}"
 
-    def add_space_between_lines(self) -> None:
+    def erase_repetitions(self) -> None:
         new_lines: list[LyricsLine] = []
         for i in range(1, len(self.lines)):
             cur_line: LyricsLine = self.lines[i]
             prev_line: LyricsLine = self.lines[i - 1]
+            if (cur_line.content == "\n" or prev_line.content == "\n") or (
+                cur_line.content == prev_line.content
+            ):
+                continue
             new_lines.append(prev_line)
+        new_lines.append(self.lines[-1])
+        self.lines = new_lines
+
+    def add_spaces_between_timestamps(self) -> None:
+        new_lines: list[LyricsLine] = []
+        for i in range(1, len(self.lines)):
+            cur_line: LyricsLine = self.lines[i]
+            prev_line: LyricsLine = self.lines[i - 1]
             if cur_line.content == "\n" or prev_line.content == "\n":
                 continue
+            new_lines.append(prev_line)
             if cur_line.timestamp != prev_line.timestamp:
                 new_lines.append(LyricsLine(cur_line.timestamp - 1, "\n"))
         new_lines.append(self.lines[-1])
+        self.lines = new_lines
+
+    # Some sick fucker decided to add repeated lines like that
+    # [time1]line1
+    #
+    # [time2]line1
+    # [time2]line2
+    # and now I need to fix it...
+    # also wtf is going on with all those subtitles in "https://www.youtube.com/watch?v=wFLn_d51bNc"
+    # Don't take me wrong. I think it's very cool idea... But still
+    # this erases repetitions only if something changed in timestanp, so it leaves all exactly repeated part
+    # I HATE STRING MANIPULATION!!!
+    def erase_timestamp_repetitions(self) -> None:
+        new_lines: list[LyricsLine] = []
+        cur_timestamp = self.lines[0].timestamp
+        next_timestamp = 0
+        for line in self.lines:
+            if line.timestamp > cur_timestamp:
+                next_timestamp = line.timestamp
+                break
+            next_timestamp = -1
+        cur_lines = [line for line in self.lines if line.timestamp == cur_timestamp]
+        new_lines.extend(cur_lines)
+        while next_timestamp != -1:
+            cur_lines = [line for line in self.lines if line.timestamp == cur_timestamp]
+            next_lines = [
+                line for line in self.lines if line.timestamp == next_timestamp
+            ]
+            print("\n")
+            for line in cur_lines:
+                print(line)
+            print()
+            for line in next_lines:
+                print(line)
+            print()
+            if len(next_lines) <= len(cur_lines):
+                new_lines.extend(next_lines)
+            else:
+                iterator: int = len(cur_lines)
+                change_id: int = len(cur_lines)
+                for i in range(iterator):
+                    cur_line = cur_lines[i]
+                    next_line = next_lines[i]
+                    if cur_line.content != next_line.content:
+                        change_id = i
+                        break
+                print(change_id)
+                next_unique = next_lines[change_id:]
+                for line in next_unique:
+                    print(line)
+                new_lines.extend(next_unique)
+
+            cur_timestamp = next_timestamp
+            for line in self.lines:
+                if line.timestamp > cur_timestamp:
+                    next_timestamp = line.timestamp
+                    break
+                next_timestamp = -1
         self.lines = new_lines
 
     def get_file_data(self) -> list[str]:
@@ -101,7 +188,7 @@ def get_lang_priority(lyrics_data: LyricsData, lang_priority: list[str]) -> int:
     return len(lang_priority)
 
 
-def read_lyrics(filename: str) -> LyricsData | None:
+def read_lyrics(filename: str, parse_lines: bool = False) -> LyricsData | None:
     file = open(filename)
     lines = file.readlines()
     file.close()
@@ -137,7 +224,7 @@ def read_lyrics(filename: str) -> LyricsData | None:
             continue
         time = line[1 : line.find("]")]
         content = line[line.find("]") + 1 :]
-        lyrics_line = LyricsLine(time_to_stamp(time), content)
+        lyrics_line = LyricsLine(time_to_stamp(time), content, parse_lines)
         lyrics_data.lines.append(lyrics_line)
 
     return lyrics_data
@@ -145,6 +232,7 @@ def read_lyrics(filename: str) -> LyricsData | None:
 
 if __name__ == "__main__":
     lang_priority = ["en", "jp", "pl", "ru"]
+    parse_lines = True
 
     cwd = os.getcwd()
     f = []
@@ -155,7 +243,7 @@ if __name__ == "__main__":
         break
     lyrics: dict[str, LyricsData] = {}
     for file in f:
-        lyric_data: LyricsData | None = read_lyrics(file)
+        lyric_data: LyricsData | None = read_lyrics(file, parse_lines)
         if lyric_data is None:
             continue
         if lyrics.get(lyric_data.name) is not None:
@@ -169,5 +257,6 @@ if __name__ == "__main__":
 
     for name in lyrics:
         lyric: LyricsData = lyrics[name]
-        lyric.add_space_between_lines()
+        lyric.erase_timestamp_repetitions()
+        lyric.add_spaces_between_timestamps()
         lyric.save_file(cwd)
