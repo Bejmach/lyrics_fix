@@ -29,13 +29,11 @@ class LyricsLine:
         rb_position = self.content.find(">")
         pos = 0
         while (lb_position != -1) and (rb_position != -1):
-            print(self.content, ", ", lb_position, ", ", rb_position)
             if lb_position < rb_position:
                 self.content = (
                     self.content[: lb_position + pos]
                     + self.content[rb_position + 1 + pos :]
                 )
-                print(self.content)
                 pos -= rb_position - lb_position - 1
             pos += max(rb_position, lb_position)
             lb_position = self.content[pos:].find("<")
@@ -63,17 +61,21 @@ class LyricsData:
             line_str += str(line)
         return f"Name: {self.name}\nLang: {self.lang}\nExt: {self.ext}\nMetadata: {self.metadata}\nLines:\n{line_str}"
 
-    def erase_repetitions(self) -> None:
+    ## Delete reperitions that are changed in span of last max_time_change hundreds of a second
+    def erase_repetitions(self, max_time_change: int = 50) -> None:
         new_lines: list[LyricsLine] = []
+        last_line: LyricsLine = self.lines[0]
         for i in range(1, len(self.lines)):
             cur_line: LyricsLine = self.lines[i]
             prev_line: LyricsLine = self.lines[i - 1]
-            if (cur_line.content == "\n" or prev_line.content == "\n") or (
-                cur_line.content == prev_line.content
+            if (
+                last_line.content == cur_line.content
+                and cur_line.timestamp - prev_line.timestamp < max_time_change
             ):
                 continue
-            new_lines.append(prev_line)
-        new_lines.append(self.lines[-1])
+            new_lines.append(last_line)
+            last_line = cur_line
+        new_lines.append(last_line)
         self.lines = new_lines
 
     def add_spaces_between_timestamps(self) -> None:
@@ -215,8 +217,6 @@ def read_lyrics(filename: str, parse_lines: bool = False) -> LyricsData | None:
 
     metadata: bool = True
 
-    print(name, ", ", lang)
-
     for line in lines:
         if line == "\n":
             metadata = False
@@ -260,5 +260,6 @@ if __name__ == "__main__":
     for name in lyrics:
         lyric: LyricsData = lyrics[name]
         lyric.erase_timestamp_repetitions()
+        lyric.erase_repetitions()
         lyric.add_spaces_between_timestamps()
         lyric.save_file(cwd)
