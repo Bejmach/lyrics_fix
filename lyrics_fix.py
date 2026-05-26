@@ -1,3 +1,4 @@
+from random import randint, randrange
 from typing import override
 import os
 import re
@@ -26,10 +27,19 @@ class LyricsLine:
             self.content = self.content.replace(pair[0], pair[1])
         lb_position = self.content.find("<")
         rb_position = self.content.find(">")
+        pos = 0
         while (lb_position != -1) and (rb_position != -1):
-            self.content = self.content[:lb_position] + self.content[rb_position + 1 :]
-            lb_position = self.content.find("<")
-            rb_position = self.content.find(">")
+            print(self.content, ", ", lb_position, ", ", rb_position)
+            if lb_position < rb_position:
+                self.content = (
+                    self.content[: lb_position + pos]
+                    + self.content[rb_position + 1 + pos :]
+                )
+                print(self.content)
+                pos -= rb_position - lb_position - 1
+            pos += max(rb_position, lb_position)
+            lb_position = self.content[pos:].find("<")
+            rb_position = self.content[pos:].find(">")
 
 
 class LyricsData:
@@ -105,13 +115,6 @@ class LyricsData:
             next_lines = [
                 line for line in self.lines if line.timestamp == next_timestamp
             ]
-            print("\n")
-            for line in cur_lines:
-                print(line)
-            print()
-            for line in next_lines:
-                print(line)
-            print()
             if len(next_lines) <= len(cur_lines):
                 new_lines.extend(next_lines)
             else:
@@ -123,10 +126,7 @@ class LyricsData:
                     if cur_line.content != next_line.content:
                         change_id = i
                         break
-                print(change_id)
                 next_unique = next_lines[change_id:]
-                for line in next_unique:
-                    print(line)
                 new_lines.extend(next_unique)
 
             cur_timestamp = next_timestamp
@@ -214,6 +214,8 @@ def read_lyrics(filename: str, parse_lines: bool = False) -> LyricsData | None:
     lyrics_data = LyricsData(name, ext, lang, [])
 
     metadata: bool = True
+
+    print(name, ", ", lang)
 
     for line in lines:
         if line == "\n":
