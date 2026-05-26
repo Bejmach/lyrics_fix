@@ -66,7 +66,7 @@ class LyricsData:
         filepath = f"{path}/{filename}"
         f = open(filepath, "w")
         _ = f.write(content)
-        f.close
+        f.close()
 
 
 def time_to_stamp(time: str) -> int:
@@ -76,6 +76,10 @@ def time_to_stamp(time: str) -> int:
     ms = int(parts[-1])
 
     return ms + sec * 100 + min * 60 * 100
+
+
+def is_lang_code(code: str) -> bool:
+    return bool(re.fullmatch(r"[a-z]{2}(-[A-Z]{2})?", code))
 
 
 def stamp_to_time(stamp: int) -> str:
@@ -97,17 +101,28 @@ def get_lang_priority(lyrics_data: LyricsData, lang_priority: list[str]) -> int:
     return len(lang_priority)
 
 
-def read_lyrics(filename: str) -> LyricsData:
+def read_lyrics(filename: str) -> LyricsData | None:
     file = open(filename)
     lines = file.readlines()
     file.close()
 
+    dot_count = filename.count(".")
+
     pos = filename.rfind(".")
     ext = filename[pos + 1 :]
 
-    pos = filename.rfind(".", 0, pos)
-    lang = filename[pos + 1 : filename.rfind(".")]
-    name = filename[:pos]
+    lang = ""
+    name = ""
+
+    if dot_count < 2:
+        return None
+    else:
+        pos = filename.rfind(".", 0, pos)
+        lang = filename[pos + 1 : filename.rfind(".")]
+        name = filename[:pos]
+
+    if not is_lang_code(lang):
+        return None
 
     lyrics_data = LyricsData(name, ext, lang, [])
 
@@ -140,7 +155,9 @@ if __name__ == "__main__":
         break
     lyrics: dict[str, LyricsData] = {}
     for file in f:
-        lyric_data = read_lyrics(file)
+        lyric_data: LyricsData | None = read_lyrics(file)
+        if lyric_data is None:
+            continue
         if lyrics.get(lyric_data.name) is not None:
             old_lyrics: LyricsData = lyrics[lyric_data.name]
             new_priority = get_lang_priority(lyric_data, lang_priority)
