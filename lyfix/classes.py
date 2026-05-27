@@ -139,25 +139,30 @@ class LyricsLine:
         return stamp_to_time(self.timestamp)
 
     def fix_content(self) -> None:
-        erase = ["\\n", "\\t", "\\r", "\\h"]
-        replace = [["\\\\", "\\"], ['\\"', '"'], ["\\'", "'"]]
-        for symbol in erase:
-            self.content = self.content.replace(symbol, "")
-        for pair in replace:
-            self.content = self.content.replace(pair[0], pair[1])
-        lb_position = self.content.find("<")
-        rb_position = self.content.find(">")
-        pos = 0
-        while (lb_position != -1) and (rb_position != -1):
-            if lb_position < rb_position:
-                self.content = (
-                    self.content[: lb_position + pos]
-                    + self.content[rb_position + 1 + pos :]
-                )
-                pos -= rb_position - lb_position - 1
-            pos += max(rb_position, lb_position) - 1
-            lb_position = self.content[pos:].find("<")
-            rb_position = self.content[pos:].find(">")
+        self.content = fix_line_content(self.content)
+
+
+def fix_line_content(content: str) -> str:
+    # strip zero width characters
+    content = re.sub(r"[\u200b\u200c\u200d\uFEFF]", "", content)
+
+    erase = ["\\n", "\\t", "\\r", "\\h"]
+    replace = [["\\\\", "\\"], ['\\"', '"'], ["\\'", "'"]]
+    for symbol in erase:
+        content = content.replace(symbol, "")
+    for pair in replace:
+        content = content.replace(pair[0], pair[1])
+    lb_position = content.find("<")
+    rb_position = content.find(">")
+    pos = 0
+    while (lb_position != -1) and (rb_position != -1):
+        if lb_position < rb_position:
+            content = content[: lb_position + pos] + content[rb_position + 1 + pos :]
+            pos -= rb_position - lb_position - 1
+        pos += max(rb_position, lb_position) - 1
+        lb_position = content[pos:].find("<")
+        rb_position = content[pos:].find(">")
+    return content
 
 
 class LyricsData:
@@ -307,7 +312,7 @@ class LyricsData:
                 next_timestamp = -1
         self.lines = new_lines
 
-    # CURCUSP/VOCACIRCUS, WHY ARE YOUR LYRICS SO FUCKED UP!!!! I DONT WANT TO MAKE THIS ANYMORE!!!!
+    # CIRCUSP/VOCACIRCUS, WHY ARE YOUR LYRICS SO FUCKED UP!!!! I DONT WANT TO MAKE THIS ANYMORE!!!!
     # Damn, I didn't checked how Eves lyrics looks like... fuck
     # At this point it would be more efficient to manually edit lyrics, but what's fun in that
     def erase_style_repetitions(self) -> None:
@@ -329,13 +334,10 @@ class LyricsData:
                     prev_line.content.count(bracket[1]),
                 )
             if cur_style_counter != 0 or prev_style_counter != 0:
-                cur_line_content = cur_line.content
-                prev_line_content = prev_line.content
-                for bracket in style_brackets:
-                    cur_line_content = cur_line_content.replace(bracket[0], "")
-                    cur_line_content = cur_line_content.replace(bracket[1], "")
-                    prev_line_content = prev_line_content.replace(bracket[0], "")
-                    prev_line_content = prev_line_content.replace(bracket[1], "")
+                cur_line_content = fix_line_content(cur_line.content).replace("\n", "")
+                prev_line_content = fix_line_content(prev_line.content).replace(
+                    "\n", ""
+                )
                 if cur_line_content != prev_line_content:
                     new_lines.append(cur_line)
             else:

@@ -4,7 +4,9 @@ lyfix -l -s -r 50 -tr -sr -L en,jp,pl,ru
 [re:Lavf62.3.100]
 [ve:62.3.100]
 
-[00:01.00]Styled repetition
+[00:01.00]Styled repetition 1
+[00:04.99]
+[00:05.00]Styled repetition 2
 [00:09.99]
 [00:10.00]Normal repetition
 [00:11.49]
@@ -20,11 +22,11 @@ lyfix -l -s -r 50 -tr -sr -L en,jp,pl,ru
 [00:15.49]
 [00:15.50]Normal repetition
 [00:19.99]
-[00:20.00]Symbols 
+[00:20.00]Symbols
 [00:20.99]
 [00:21.00]Symbols >'_'<
 [00:21.99]
-[00:22.00]Suymbols 
+[00:22.00]Suymbols
 [00:24.99]
 [00:25.00]Space 1 a
 [00:25.00]Space 1 b
@@ -39,3 +41,7 @@ lyfix -l -s -r 50 -tr -sr -L en,jp,pl,ru
 [00:32.00]line2
 [00:32.99]
 [00:33.00]line3
+[00:39.99]
+[00:40.00]Zero len chars
+[00:43.88]
+[00:43.89]OVERANALYZE

@@ -1,13 +1,20 @@
 [re:Lavf62.3.100]
 [ve:62.3.100]
 
-[00:01.00]<i>St</i>yled repetition
-[00:02.00]<i>Style</i>d repetition
-[00:03.00]<i>Styled r</i>epetition
-[00:04.00]<i>Styled rep</i>etition
-[00:05.00]<i>Styled repeti</i>tion
-[00:06.00]<i>Styled repetiti</i>on
-[00:07.00]<i>Styled repetition</i>
+[00:01.00]<i>St</i>yled repetition 1
+[00:01.50]<i>Style</i>d repetition 1
+[00:02.00]<i>Styled r</i>epetition 1
+[00:02.50]<i>Styled rep</i>etition 1
+[00:03.00]<i>Styled repeti</i>tion 1
+[00:03.50]<i>Styled repetiti</i>on 1
+[00:04.00]<i>Styled repetition</i> 1
+[00:05.00]<b>St</b>yled repetition 2
+[00:05.50]<b>Style</b>d repetition 2
+[00:06.00]<b>Styled r</b>epetition 2
+[00:06.50]<b>Styled rep</b>etition 2
+[00:07.00]<b>Styled repeti</b>tion 2
+[00:07.50]<b>Styled repetiti</b>on 2
+[00:08.00]<b>Styled repetition</b> 2
 [00:10.00]Normal repetition
 [00:10.10]Normal repetition
 [00:10.30]Normal repetition
@@ -33,3 +40,9 @@
 [00:33.00]line1
 [00:33.00]line2
 [00:33.00]line3
+[00:40.00]Zero len chars
+[00:43.89]<b>​O</b>​​VERANALYZE
+[00:44.36]<b>​OVER</b>​​ANALYZE
+[00:44.52]<b>​OVERA</b>​​NALYZE
+[00:44.96]<b>​OVERANA</b>​​LYZE
+[00:45.32]<b>​OVERANALYZE</b>
