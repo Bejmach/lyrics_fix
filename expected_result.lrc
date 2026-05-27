@@ -1,0 +1,41 @@
+Expected result for command
+lyfix -l -s -r 50 -tr -sr -L en,jp,pl,ru
+
+[re:Lavf62.3.100]
+[ve:62.3.100]
+
+[00:01.00]Styled repetition
+[00:09.99]
+[00:10.00]Normal repetition
+[00:11.49]
+[00:11.50]Normal repetition
+[00:12.09]
+[00:12.10]Normal repetition
+[00:12.79]
+[00:12.80]Normal repetition
+[00:13.59]
+[00:13.60]Normal repetition
+[00:14.49]
+[00:14.50]Normal repetition
+[00:15.49]
+[00:15.50]Normal repetition
+[00:19.99]
+[00:20.00]Symbols 
+[00:20.99]
+[00:21.00]Symbols >'_'<
+[00:21.99]
+[00:22.00]Suymbols 
+[00:24.99]
+[00:25.00]Space 1 a
+[00:25.00]Space 1 b
+[00:25.99]
+[00:26.00]Space 2 a
+[00:26.00]Space 2 b
+[00:29.99]
+[00:30.00]Timestamp repetitions
+[00:30.99]
+[00:31.00]line1
+[00:31.99]
+[00:32.00]line2
+[00:32.99]
+[00:33.00]line3

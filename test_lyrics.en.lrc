@@ -1,0 +1,35 @@
+[re:Lavf62.3.100]
+[ve:62.3.100]
+
+[00:01.00]<i>St</i>yled repetition
+[00:02.00]<i>Style</i>d repetition
+[00:03.00]<i>Styled r</i>epetition
+[00:04.00]<i>Styled rep</i>etition
+[00:05.00]<i>Styled repeti</i>tion
+[00:06.00]<i>Styled repetiti</i>on
+[00:07.00]<i>Styled repetition</i>
+[00:10.00]Normal repetition
+[00:10.10]Normal repetition
+[00:10.30]Normal repetition
+[00:10.60]Normal repetition
+[00:11.00]Normal repetition
+[00:11.50]Normal repetition
+[00:12.10]Normal repetition
+[00:12.80]Normal repetition
+[00:13.60]Normal repetition
+[00:14.50]Normal repetition
+[00:15.50]Normal repetition
+[00:20.00]Symbols <i><i></i><b></b>
+[00:21.00]Symbols >'_'<
+[00:22.00]Suymbols \n\t\h
+[00:25.00]Space 1 a
+[00:25.00]Space 1 b
+[00:26.00]Space 2 a
+[00:26.00]Space 2 b
+[00:30.00]Timestamp repetitions
+[00:31.00]line1
+[00:32.00]line1
+[00:32.00]line2
+[00:33.00]line1
+[00:33.00]line2
+[00:33.00]line3

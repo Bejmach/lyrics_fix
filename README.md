@@ -1,4 +1,4 @@
-# Lyrics fix
+# Lyfix (Lyrix fix)
 
 Small python script to add blank lines between lines with different timestamps.
 Supported format lrc. File name format requited <name>.<lang>.lrc(default yt-dlp
