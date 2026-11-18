@@ -122,7 +122,7 @@ def get_files_recursively(directory: str) -> list[list[str]]:
 
 
 def get_files_non_recursively(directory: str) -> list[list[str]]:
-    files = [[directory, f] for f in os.listdir(directory) if os.path.isfile(f)]
+    files = [[directory, f] for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
     return files
 
 
@@ -144,7 +144,7 @@ class LyricsLine:
 
 def fix_line_content(content: str) -> str:
     # strip zero width characters
-    content = re.sub(r"[\u200b\u200c\u200d\uFEFF]", "", content)
+    content = re.sub(r"[\u200b\u200c\u200d\u200e\uFEFF]", "", content)
 
     erase = ["\\n", "\\t", "\\r", "\\h"]
     replace = [["\\\\", "\\"], ['\\"', '"'], ["\\'", "'"]]
@@ -183,10 +183,6 @@ class LyricsData:
 
     @classmethod
     def from_file(cls, directory: str, filename: str) -> Self | None:
-        file = open(os.path.join(directory, filename))
-        lines = file.readlines()
-        file.close()
-
         dot_count = filename.count(".")
 
         pos = filename.rfind(".")
@@ -204,6 +200,10 @@ class LyricsData:
 
         if not is_lang_code(lang):
             return None
+
+        file = open(os.path.join(directory, filename))
+        lines = file.readlines()
+        file.close()
 
         lyrics_data = cls(name, directory, ext, lang, [])
 
